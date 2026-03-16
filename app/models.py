@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel, Relationship
-from typing import Optional
-from pydantic import EmailStr   #insert at top of the file
+from typing import Optional, List
+from pydantic import EmailStr
 
 class Token(SQLModel):
     access_token: str
@@ -8,7 +8,7 @@ class Token(SQLModel):
 
 class UserResponse(SQLModel):
     id: Optional[int]
-    username:str
+    username: str
     email: EmailStr
 
 class User(SQLModel, table=False):
@@ -16,15 +16,14 @@ class User(SQLModel, table=False):
     username: str = Field(index=True, unique=True)
     email: str = Field(index=True, unique=True)
     password: str
-    role:str = ""
+    role: str = ""
 
 class Admin(User, table=True):
-    role:str = "admin"
+    role: str = "admin"
 
 class RegularUser(User, table=True):
-    role:str = "regular_user"
-
-    todos: list['Todo'] = Relationship(back_populates="user")
+    role: str = "regular_user"
+    todos: List['Todo'] = Relationship(back_populates="user")
 
 class TodoCategory(SQLModel, table=True):
     category_id: int = Field(foreign_key="category.id", primary_key=True)
@@ -33,18 +32,16 @@ class TodoCategory(SQLModel, table=True):
 class Category(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     user_id: int = Field(foreign_key="regularuser.id")
-    text:str
-
-    todos:list['Todo'] = Relationship(back_populates="categories", link_model=TodoCategory)
+    text: str
+    todos: List['Todo'] = Relationship(back_populates="categories", link_model=TodoCategory)
 
 class Todo(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True, default=None)
     user_id: int = Field(foreign_key="regularuser.id")
-    text:str
+    text: str
     done: bool = False
-
     user: RegularUser = Relationship(back_populates="todos")
-    categories:list['Category'] = Relationship(back_populates="todos", link_model=TodoCategory)
+    categories: List['Category'] = Relationship(back_populates="todos", link_model=TodoCategory)
 
     def toggle(self):
         self.done = not self.done

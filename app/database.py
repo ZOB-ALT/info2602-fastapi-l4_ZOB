@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from sqlmodel import Session, SQLModel, create_engine
 from typing import Annotated
 from fastapi import Depends
-from . import models
 
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -26,6 +25,5 @@ def get_session():
 @contextmanager
 def get_cli_session():
     yield from _session_generator()
-
 
 SessionDep = Annotated[Session, Depends(get_session)]
